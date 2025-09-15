@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+ <html lang="en">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <title>Student Menu</title>
+     <link rel="preconnect" href="https://fonts.googleapis.com" />
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+     <link
+       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500&display=swap"
+       rel="stylesheet"
+     />
+     <style>
+       /* --- CSS Reset and Basic Styles --- */
+       :root {
+         --bg-color: #ecf0f1; /* Light gray background */
+         --header-bg: #ffffff; /* White header */
+         --primary-accent: #1abc9c; /* Teal */
+         --primary-accent-dark: #16a085; /* Darker teal for hover */
+         --text-dark: #2c3e50; /* Deep blue text */
+         --text-light: #7f8c8d; /* Muted gray text */
+         --border-color: #e9eced; /* Light gray border */
+         --card-bg: #ffffff; /* White card background */
+       }
+ 
+       * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+       }
+ 
+       body {
+         font-family: "Inter", sans-serif;
+         background-color: var(--bg-color);
+         color: var(--text-dark);
+       }
+ 
+       .font-serif-display {
+         font-family: "Playfair Display", serif;
+       }
+ 
+       .page-container {
+         min-height: 100vh;
+         display: flex;
+         flex-direction: column;
+       }
+ 
+       /* --- Header and Navigation --- */
+       .header {
+         background-color: var(--header-bg);
+         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+         position: sticky;
+         top: 0;
+         z-index: 10;
+       }
+ 
+       .navbar {
+         max-width: 1280px;
+         margin: 0 auto;
+         padding: 0.75rem 1.5rem;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+       }
+ 
+       .navbar-title {
+         font-size: 1.875rem;
+         color: var(--text-dark);
+       }
+ 
+       .nav-links {
+         display: flex;
+         align-items: center;
+         gap: 1rem;
+       }
+ 
+       .nav-link {
+         padding: 0.5rem 1rem;
+         color: var(--text-dark); /* Deep blue text */
+         background-color: transparent;
+         border: 2px solid var(--text-dark); /* Deep blue border */
+         border-radius: 0.5rem;
+         text-decoration: none;
+         cursor: pointer;
+         font-size: 1rem;
+         transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
+           border-color 0.2s ease-in-out;
+       }
+ 
+       .nav-link:hover {
+         background-color: var(--primary-accent);
+         color: white;
+         border-color: var(--primary-accent);
+       }
+       .nav-link.active {
+         background-color: var(--primary-accent);
+         color: white;
+         border-color: var(--primary-accent);
+       }
+ 
+       /* --- Main Content --- */
+       .main-content {
+         flex-grow: 1;
+         padding: 2rem 1.5rem;
+         max-width: 1280px;
+         width: 100%;
+         margin: 0 auto;
+       }
+ 
+       .menu-header {
+         text-align: center;
+         margin-bottom: 1rem;
+         font-size: 2.5rem;
+         color: var(--text-dark);
+       }
+ 
+       /* --- Filter Buttons (removed) --- */
+       /* --- Menu Categories --- */
+       .menu-category {
+         margin-bottom: 3rem;
+       }
+ 
+       .category-title {
+         font-size: 2rem;
+         color: var(--text-dark);
+         margin-bottom: 1.5rem;
+         padding-bottom: 0.75rem;
+         border-bottom: 2px solid var(--border-color);
+       }
+ 
+       /* --- Items Grid --- */
+       .items-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+         gap: 1.5rem;
+       }
+ 
+       .item-card {
+         background-color: var(--card-bg);
+         border-radius: 0.75rem;
+         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+         overflow: hidden;
+         display: flex;
+         flex-direction: column;
+         transition: opacity 0.3s;
+       }
+ 
+       .item-image {
+         width: 100%;
+         height: 180px;
+         object-fit: cover;
+       }
+ 
+       .item-details {
+         padding: 1rem;
+         flex-grow: 1;
+       }
+ 
+       .item-name {
+         font-size: 1.25rem;
+         font-weight: bold;
+         color: var(--text-dark);
+         margin-bottom: 0.5rem;
+       }
+ 
+       .item-info {
+         color: var(--text-light);
+         margin-bottom: 1rem;
+       }
+ 
+       .item-info span {
+         display: block;
+         margin-bottom: 0.25rem;
+       }
+ 
+       .item-actions {
+         padding: 0 1rem 1rem;
+       }
+ 
+       .add-to-cart-btn {
+         width: 100%;
+         padding: 0.6rem;
+         border: none;
+         background-color: var(--primary-accent);
+         color: white;
+         border-radius: 0.5rem;
+         cursor: pointer;
+         font-weight: bold;
+         transition: all 0.2s;
+       }
+ 
+       .add-to-cart-btn:hover {
+         background-color: var(--primary-accent-dark);
+         transform: scale(1.02);
+       }
+ 
+       /* --- Cart Section --- */
+       #cart-section {
+         position: fixed;
+         bottom: 1.5rem;
+         right: 1.5rem;
+         width: 90%;
+         max-width: 380px;
+         background-color: var(--card-bg);
+         border-radius: 0.75rem;
+         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+         z-index: 20;
+         overflow: hidden;
+         display: flex;
+         flex-direction: column;
+         transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+         transform: translateY(calc(100% + 1.5rem));
+         opacity: 0;
+       }
+ 
+       #cart-section.show {
+         transform: translateY(0);
+         opacity: 1;
+       }
+ 
+       .cart-header {
+         font-size: 1.75rem;
+         padding: 1rem 1.5rem;
+         border-bottom: 1px solid var(--border-color);
+       }
+ 
+       #cart-items-container {
+         max-height: 250px;
+         overflow-y: auto;
+         padding: 0.5rem 1.5rem;
+       }
+ 
+       .cart-item {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         padding: 0.75rem 0;
+       }
+ 
+       .cart-footer {
+         padding: 1rem 1.5rem;
+         border-top: 1px solid var(--border-color);
+         background-color: #fdfefe; /* A light gray shade for footer */
+       }
+ 
+       .cart-total-line {
+         display: flex;
+         justify-content: space-between;
+         font-size: 1.25rem;
+         font-weight: bold;
+         margin-bottom: 1rem;
+       }
+ 
+       #checkout-btn {
+         width: 100%;
+         padding: 0.75rem;
+         font-size: 1.125rem;
+         font-weight: bold;
+         color: white;
+         background-color: var(--primary-accent);
+         border: none;
+         border-radius: 0.5rem;
+         cursor: pointer;
+       }
+ 
+       /* --- Custom Notification --- */
+       #notification-container {
+         position: fixed;
+         bottom: 1.5rem;
+         right: 1.5rem;
+         z-index: 1000;
+       }
+       .notification {
+         background-color: var(--text-dark);
+         color: white;
+         padding: 1rem 1.5rem;
+         border-radius: 0.5rem;
+         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+         opacity: 0;
+         transform: translateX(calc(100% + 1.5rem));
+         transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+       }
+       .notification.show {
+         opacity: 1;
+         transform: translateX(0);
+       }
+     </style>
+   </head>
+   <body>
+     <div class="page-container">
+       <header class="header">
+         <nav class="navbar">
+           <h1 class="navbar-title font-serif-display">Student Canteen</h1>
+           <div class="nav-links">
+             <button id="view-cart-btn" class="nav-link">View Cart</button>
+ 
+           </div>
+         </nav>
+       </header>
+ 
+       <main class="main-content">
+         <h2 class="menu-header font-serif-display">Today's Menu</h2>
+ 
+         <section class="menu-category">
+           <h2 class="category-title font-serif-display">Drinks</h2>
+           <div class="items-grid">
+             <div
+               class="item-card"
+               data-name="Tea"
+               data-price="15"
+             >
+               <img
+                 src="images.jpeg"
+                 alt="Tea"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">Tea</h3>
+                 <div class="item-info">
+                   <span>Price: ₹15.00</span> <span>Rating: 4.3</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+             <div
+               class="item-card"
+               data-name="Coffee"
+               data-price="30"
+             >
+               <img
+               src="stock-of-mix-a-cup-coffee-latte-more-motive-top-view-foodgraphy-generative-ai-photo.jpg"
+                 alt="Coffee"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">Coffee</h3>
+                 <div class="item-info">
+                   <span>Price: ₹30.00</span> <span>Rating: 4.4</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+           </div>
+         </section>
+ 
+         <section class="menu-category">
+           <h2 class="category-title font-serif-display">Snacks</h2>
+           <div class="items-grid">
+             <div
+               class="item-card"
+               data-name="Samosa"
+               data-price="20"
+             >
+               <img
+               src="Best-Indian-Punjabi-Samosa-Recipe-500x375.webp"
+                 alt="Samosa"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">Samosa</h3>
+                 <div class="item-info">
+                   <span>Price: ₹20.00</span> <span>Rating: 4.5</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+             <div
+               class="item-card"
+               data-name="sandwich"
+               data-price="35"
+             >
+               <img
+               src="side-view-club-sandwich-with-salted-cucumbers-lemon-olives-round-white-plate_176474-3049.jpg"
+                 alt="sandwich"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">sandwich</h3>
+                 <div class="item-info">
+                   <span>Price: ₹35.00</span> <span>Rating: 4.6</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+             <div
+               class="item-card"
+               data-name="Burger"
+               data-price="25"
+             >
+               <img
+               src="Image-9_-meat-burger-1024x538.png"
+                 alt="Burger"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">Burger</h3>
+                 <div class="item-info">
+                   <span>Price: ₹25.00</span> <span>Rating: 4.7</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+           </div>
+         </section>
+ 
+         <section class="menu-category">
+           <h2 class="category-title font-serif-display">Meals</h2>
+           <div class="items-grid">
+             <div
+               class="item-card"
+               data-name="meggie"
+               data-price="90"
+             >
+               <img
+               src="vegetable-maggi-recipe-tasty-veg-260nw-1597122580.webp"
+                 alt="meggie"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">meggie</h3>
+                 <div class="item-info">
+                   <span>Price: ₹90.00</span> <span>Rating: 4.5</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+             <div
+               class="item-card"
+               data-name="pasta"
+               data-price="120"
+             >
+               <img
+               src="realistic-penne-pasta-photo-isolated-white-background-plate-penne-pasta-marinara-sauce-beautifully-captured-295745904.webp"
+                 alt="pasta"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">pasta</h3>
+                 <div class="item-info">
+                   <span>Price: ₹120.00</span> <span>Rating: 4.8</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+             <div
+               class="item-card"
+               data-name="salad"
+               data-price="100"
+             >
+               <img
+               src="images (1).jpeg"
+                 alt="salad"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">salad</h3>
+                 <div class="item-info">
+                   <span>Price: ₹90.00</span> <span>Rating: 4.6</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+           </div>
+         </section>
+ 
+         <section class="menu-category">
+           <h2 class="category-title font-serif-display">Thalis</h2>
+           <div class="items-grid">
+             <div
+               class="item-card"
+               data-name="Gujarati Thali"
+               data-price="250"
+             >
+               <img
+               src="Gujarati-Thali.jpg"
+                 alt="Gujarati Thali"
+                 class="item-image"
+               />
+               <div class="item-details">
+                 <h3 class="item-name font-serif-display">Gujarati Thali</h3>
+                 <div class="item-info">
+                   <span>Price: ₹250.00</span> <span>Rating: 4.9</span>
+                 </div>
+               </div>
+               <div class="item-actions">
+                 <button class="add-to-cart-btn">Add to Cart</button>
+               </div>
+             </div>
+           </div>
+         </section>
+       </main>
+     </div>
+ 
+     <div id="notification-container"></div>
+ 
+     <script>
+       document.addEventListener("DOMContentLoaded", () => {
+         const mainContent = document.querySelector(".main-content");
+         const viewCartButton = document.getElementById("view-cart-btn");
+ 
+         // Retrieve cart from localStorage or start with an empty array
+         let cart = JSON.parse(localStorage.getItem("canteenCart")) || [];
+ 
+         // --- Cart Logic using Event Delegation on main content area ---
+         mainContent.addEventListener("click", (e) => {
+           if (e.target.classList.contains("add-to-cart-btn")) {
+             const itemElement = e.target.closest(".item-card");
+             const itemName = itemElement.dataset.name;
+             const itemPrice = parseInt(itemElement.dataset.price);
+ 
+             const existingItem = cart.find((item) => item.name === itemName);
+ 
+             if (existingItem) {
+               existingItem.quantity++;
+             } else {
+               cart.push({ name: itemName, price: itemPrice, quantity: 1 });
+             }
+ 
+             // Save the updated cart to localStorage
+             localStorage.setItem("canteenCart", JSON.stringify(cart));
+             
+             // Show a success notification
+             showNotification(`✅ ${itemName} added to cart!`);
+           }
+         });
+ 
+         // --- View Cart Button redirects to payment page ---
+         viewCartButton.addEventListener("click", () => {
+           window.location.href = "payment.html"; // Redirects to the payment page
+         });
+ 
+         /**
+          * Shows a custom notification message.
+          * @param {string} message - The message to display.
+          */
+         function showNotification(message) {
+           const container = document.getElementById("notification-container");
+           const notification = document.createElement("div");
+           notification.className = "notification";
+           notification.textContent = message;
+           container.appendChild(notification);
+ 
+           setTimeout(() => {
+             notification.classList.add("show");
+           }, 10);
+ 
+           setTimeout(() => {
+             notification.classList.remove("show");
+             notification.addEventListener(
+               "transitionend",
+               () => notification.remove(),
+               { once: true }
+             );
+           }, 3000);
+         }
+       });
+     </script>
+   </body>
+ </html>

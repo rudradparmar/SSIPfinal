@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback View</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #ecf0f1;
+      --card: #ffffff;
+      --soft1: #f8f9fa;
+      --soft2: #fafbfb;
+      --soft3: #eaeeef;
+      --accent: #1abc9c;
+      --accent-dark: #16a085;
+      --text-dark: #333;
+      --text-light: #666;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 30px;
+      color: var(--text-dark);
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .feedback-card {
+      background: var(--card);
+      border: 1px solid var(--soft3);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: slideUp 0.4s ease-in-out;
+    }
+
+    .feedback-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .feedback-user {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .feedback-date {
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .feedback-text {
+      font-size: 1rem;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .stars {
+      color: #f39c12;
+      font-size: 1.2rem;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 25px auto 0;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes slideUp {
+      from {transform: translateY(20px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💬 Student Feedback</h1>
+
+    <!-- Feedback Example 1 -->
+    <div class="feedback-card">
+      <div class="feedback-header">
+        <span class="feedback-user">Aarav Patel</span>
+        <span class="feedback-date">15 Sep 2025</span>
+      </div>
+      <div class="feedback-text">
+        The food quality has improved a lot! Sandwiches are fresh and tasty. Please add more healthy options.
+      </div>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+    </div>
+
+    <!-- Feedback Example 2 -->
+    <div class="feedback-card">
+      <div class="feedback-header">
+        <span class="feedback-user">Priya Shah</span>
+        <span class="feedback-date">14 Sep 2025</span>
+      </div>
+      <div class="feedback-text">
+        Loved the cold coffee! But sometimes the waiting time is too long. If you can reduce prep time, it’ll be perfect.
+      </div>
+      <div class="stars">⭐⭐⭐⭐</div>
+    </div>
+
+    <!-- Feedback Example 3 -->
+    <div class="feedback-card">
+      <div class="feedback-header">
+        <span class="feedback-user">Rahul Mehta</span>
+        <span class="feedback-date">13 Sep 2025</span>
+      </div>
+      <div class="feedback-text">
+        Pizza was okay, but could be served hotter. Appreciate the clean environment and friendly staff.
+      </div>
+      <div class="stars">⭐⭐⭐</div>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='staff_dashboard.html'">⬅ Back to Dashboard</button>
+  </div>
+</body>
+</html>

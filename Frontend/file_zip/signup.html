@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Canteen - Signup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* --- CSS Reset and Basic Styles --- */
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8f9fa; /* Updated */
+        color: #213448;
+      }
+
+      .font-serif-display {
+        font-family: "Playfair Display", serif;
+      }
+
+      .page-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        background-color: #ffffff; /* White header background */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 0.75rem 1.5rem; /* Updated to match new login page padding */
+      }
+
+      .navbar {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0; /* Updated to remove inner padding */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar-title {
+        font-size: 1.875rem; /* Updated to match new login page title size */
+        color: #2c3e50; /* Deep blue title */
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1rem; /* Updated to match new login page spacing */
+      }
+
+      .nav-link {
+        padding: 0.5rem 1rem; /* Updated to match new login page button size */
+        color: #2c3e50; /* Deep blue text */
+        background-color: transparent;
+        border: 2px solid #2c3e50; /* Deep blue border */
+        border-radius: 0.5rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+      }
+
+      .nav-link.active,
+      .nav-link:hover {
+        background-color: #1abc9c; /* Teal for active/hover */
+        color: white;
+        border-color: #1abc9c;
+      }
+
+      /* --- Main Content & Form --- */
+      .main-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 1rem;
+      }
+
+      .form-container {
+        background-color: #ffffff; /* Updated */
+        border: 1px solid #d1d5db;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 28rem; /* 448px */
+      }
+
+      .form-title {
+        font-size: 2.25rem; /* 36px */
+        text-align: center;
+        color: #213448;
+        margin-bottom: 2rem;
+      }
+
+      /* --- Signup Role Toggle --- */
+      .toggle-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        border: 1px solid #1abc9c; /* Updated */
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+
+      .toggle-button {
+        flex-grow: 1;
+        padding: 0.75rem 1rem;
+        border: none;
+        background-color: transparent;
+        color: #1abc9c; /* Updated */
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .toggle-button.active {
+        background-color: #1abc9c; /* Updated */
+        color: white;
+      }
+
+      /* --- Form Elements --- */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 1.125rem; /* 18px */
+        color: #213448;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-input {
+        margin-top: 0.5rem;
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        font-size: 1rem;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #1abc9c; /* Updated */
+        box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.3); /* Updated */
+      }
+
+      .submit-button {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.75rem 2rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        background-color: #1abc9c; /* Updated */
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s;
+      }
+
+      .submit-button:hover {
+        background-color: #0d8c6b; /* Updated to a darker green for hover */
+        transform: scale(1.02);
+      }
+
+      /* --- Custom Alert Styling --- */
+      #custom-alert {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        border: 2px solid #1abc9c; /* Updated */
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+      }
+      #custom-alert p {
+        font-size: 1.125rem;
+        color: #213448;
+        margin-bottom: 1.5rem;
+      }
+      #custom-alert button {
+        width: 100%;
+        padding: 0.5rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        background-color: #1abc9c; /* Updated */
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      #custom-alert button:hover {
+        background-color: #0d8c6b; /* Updated */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-container">
+      <header class="header">
+        <nav class="navbar">
+          <h1 class="navbar-title font-serif-display">Student Canteen</h1>
+          <div class="nav-links">
+            <button class="nav-link home" style="border: none">Home</button>
+            <button class="nav-link login" style="border: none">Login</button>
+            <button class="nav-link signup" style="border: none">
+              Signup
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <main class="main-content">
+        <div class="form-container">
+          <h2 class="form-title font-serif-display">Create Account</h2>
+
+          <div class="toggle-container">
+            <button id="student-toggle-btn" class="toggle-button">
+              Student
+            </button>
+            <button id="staff-toggle-btn" class="toggle-button">Staff</button>
+          </div>
+
+          <form id="signup-form">
+            <div class="form-group">
+              <label
+                id="id-label"
+                for="user-id"
+                class="form-label font-serif-display"
+                >Student ID:</label
+              >
+              <input
+                type="text"
+                id="user-id"
+                name="user-id"
+                required
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label for="password" class="form-label font-serif-display"
+                >Password:</label
+              >
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="form-input"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="form-group">
+              <label
+                for="confirm-password"
+                class="form-label font-serif-display"
+                >Confirm Password:</label
+              >
+              <input
+                type="password"
+                id="confirm-password"
+                name="confirm-password"
+                required
+                class="form-input"
+                placeholder="••••••••"
+              />
+            </div>
+            <button type="submit" class="submit-button">Create Account</button>
+          </form>
+        </div>
+      </main>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const studentBtn = document.getElementById("student-toggle-btn");
+        const staffBtn = document.getElementById("staff-toggle-btn");
+        const idLabel = document.getElementById("id-label");
+        const idInput = document.getElementById("user-id");
+        const signupForm = document.getElementById("signup-form");
+
+        // Function to switch between signup modes
+        function switchMode(mode) {
+          if (mode === "student") {
+            studentBtn.classList.add("active");
+            staffBtn.classList.remove("active");
+            idLabel.textContent = "Student ID:";
+            idInput.placeholder = "Enter your student ID";
+            signupForm.dataset.mode = "student";
+          } else if (mode === "staff") {
+            staffBtn.classList.add("active");
+            studentBtn.classList.remove("active");
+            idLabel.textContent = "Staff ID:";
+            idInput.placeholder = "Enter your staff ID";
+            signupForm.dataset.mode = "staff";
+          }
+        }
+
+        // Set the initial mode to 'student'
+        switchMode("student");
+
+        // Add click event listeners to the toggle buttons
+        studentBtn.addEventListener("click", () => switchMode("student"));
+        staffBtn.addEventListener("click", () => switchMode("staff"));
+      });
+
+      // --- Existing Form Submission and Alert Logic ---
+      document
+        .getElementById("signup-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirm-password").value;
+
+          if (password !== confirmPassword) {
+            showCustomAlert("Passwords do not match. Please try again.");
+            return;
+          }
+
+          // On successful validation
+          showCustomAlert("Account created successfully! You can now log in.");
+
+          // Optionally, redirect to login page after a delay
+          setTimeout(() => {
+            // In a real app, you would redirect like this:
+            window.location.href = "login.html";
+            console.log("Redirecting to login page...");
+          }, 2000);
+        });
+
+      function showCustomAlert(message) {
+        const existingAlert = document.getElementById("custom-alert");
+        if (existingAlert) {
+          existingAlert.remove();
+        }
+
+        const alertBox = document.createElement("div");
+        alertBox.id = "custom-alert";
+
+        const messageP = document.createElement("p");
+        messageP.textContent = message;
+
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "OK";
+
+        alertBox.appendChild(messageP);
+        alertBox.appendChild(closeButton);
+        document.body.appendChild(alertBox);
+
+        closeButton.onclick = () => {
+          alertBox.remove();
+        };
+      }
+      let loginButton = document.querySelector(".nav-link.login");
+      loginButton.addEventListener("click", () => {
+        console.log("clicked");
+        window.location.href = "login.html";
+      });
+      let signupButton = document.querySelector(".nav-link.signup");
+      signupButton.addEventListener("click", () => {
+        console.log("clicked");
+        window.location.href = "signup.html";
+      });
+      let Home = document.querySelector(".nav-link.home");
+      Home.addEventListener("click", () => {
+        console.log("clicked");
+        window.location.href = "index.html";
+      });
+    </script>
+  </body>
+</html>

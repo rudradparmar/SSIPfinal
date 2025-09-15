@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Canteen - Staff Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* --- CSS Reset and Basic Styles --- */
+      :root {
+        --bg-color: #ecf0f1;
+        --header-bg: #eaeeef;
+        --card-bg: #ffffff;
+        --primary-accent: #1abc9c;
+        --text-dark: #333;
+        --text-light: #555;
+        --border-color: #eaeeef;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .font-serif-display {
+        font-family: "Playfair Display", serif;
+      }
+
+      /* --- Top Navigation Bar --- */
+      .top-navbar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 30px;
+        background-color: var(--header-bg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .canteen-logo {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .nav-buttons button {
+        background-color: var(--card-bg);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-transform: uppercase;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .nav-buttons button:hover {
+        background-color: #e0e3e4;
+      }
+
+      .nav-buttons button.accent {
+        background-color: var(--primary-accent);
+        color: #ffffff;
+        border: none;
+      }
+
+      .nav-buttons button.accent:hover {
+        background-color: #16a085;
+      }
+
+      /* --- Main Dashboard Content --- */
+      .dashboard-container {
+        width: 90%;
+        max-width: 900px;
+        margin-top: 50px;
+        text-align: center;
+      }
+
+      .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 400;
+        color: var(--text-dark);
+        margin-bottom: 40px;
+      }
+
+      /* --- Tabs Navigation --- */
+      .tab-nav {
+        display: flex;
+        justify-content: flex-start;
+        border-bottom: 2px solid var(--border-color);
+        margin-bottom: 30px;
+      }
+
+      .tab-button {
+        background-color: transparent;
+        border: none;
+        padding: 15px 25px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        color: var(--text-light);
+        border-bottom: 2px solid transparent;
+        transition: color 0.3s, border-bottom-color 0.3s;
+      }
+
+      .tab-button.active {
+        color: var(--primary-accent);
+        border-bottom-color: var(--primary-accent);
+        font-weight: 600;
+      }
+
+      /* --- Form Card --- */
+      .form-card {
+        background-color: var(--card-bg);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-group label {
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border: 1px solid #e9eced;
+        border-radius: 8px;
+        background-color: #fafbfb;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-accent);
+        box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
+      }
+
+      .add-item-button {
+        width: 100%;
+        padding: 15px;
+        background-color: var(--primary-accent);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s;
+      }
+
+      .add-item-button:hover {
+        background-color: #16a085;
+        transform: translateY(-2px);
+      }
+
+      .add-item-button:active {
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="top-navbar">
+      <div class="canteen-logo">Student Canteen</div>
+      <div class="nav-buttons">
+        <button class="accent" onclick="window.location.href='prediction.html'">Prediction Graph</button>
+        <button class="accent" onclick="window.location.href='confirm.html'">Order Confirmed</button>
+        <button class="accent" onclick="window.location.href='feedbackreview.html'">Feedback View</button>
+      </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container">
+      <h1 class="dashboard-title font-serif-display">Staff Dashboard</h1>
+
+      <div class="tab-nav">
+        <button class="tab-button active">Add Item</button>
+      </div>
+
+      <!-- Form -->
+      <div class="form-card">
+        <form id="add-item-form">
+          <div class="form-group">
+            <label for="item-name">Item Name:</label>
+            <input type="text" id="item-name" name="item-name" required />
+          </div>
+          <div class="form-group">
+            <label for="price">Price (₹):</label>
+            <input type="number" id="price" name="price" required />
+          </div>
+          <div class="form-group">
+            <label for="image-url">Image URL:</label>
+            <input type="url" id="image-url" name="image-url" />
+          </div>
+          <div class="form-group">
+            <label for="prep-time">Prep Time (mins):</label>
+            <input type="number" id="prep-time" name="prep-time" required />
+          </div>
+          <div class="form-group">
+            <label for="rating">Rating (1-5):</label>
+            <input
+              type="number"
+              id="rating"
+              name="rating"
+              min="1"
+              max="5"
+              step="0.1"
+              required
+            />
+          </div>
+          <button type="submit" class="add-item-button">Add Item</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      const form = document.getElementById("add-item-form");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // stop page reload
+
+        const itemName = document.getElementById("item-name").value;
+        const price = document.getElementById("price").value;
+        const imageUrl = document.getElementById("image-url").value;
+        const prepTime = document.getElementById("prep-time").value;
+        const rating = document.getElementById("rating").value;
+
+        console.log("New Item Added:", {
+          itemName,
+          price,
+          imageUrl,
+          prepTime,
+          rating,
+        });
+
+        alert(`Item "${itemName}" added successfully!`);
+
+        form.reset();
+      });
+    </script>
+  </body>
+</html>

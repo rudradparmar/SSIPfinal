@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prediction Graphs</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #ecf0f1;
+      color: #333;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+    }
+
+    .chart-container {
+      width: 90%;
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 400px !important;
+    }
+
+    .back-btn {
+      background: #1abc9c;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 20px;
+    }
+
+    .back-btn:hover {
+      background: #16a085;
+    }
+  </style>
+</head>
+<body>
+  <h1>Prediction Graphs</h1>
+
+  <div class="chart-container">
+    <h2>📅 Weekly Demand</h2>
+    <canvas id="weeklyChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h2>📆 Monthly Demand</h2>
+    <canvas id="monthlyChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h2>🌦 Seasonal Demand</h2>
+    <canvas id="seasonalChart"></canvas>
+  </div>
+
+  <button class="back-btn" onclick="window.location.href='staff_dashboard.html'">⬅ Back to Dashboard</button>
+
+  <script>
+    // Weekly Chart
+    new Chart(document.getElementById("weeklyChart"), {
+      type: "bar",
+      data: {
+        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        datasets: [{
+          label: "Orders",
+          data: [45, 60, 50, 70, 80, 90, 40],
+          backgroundColor: "#1abc9c"
+        }]
+      },
+      options: {
+        indexAxis: "y", // vertical bar chart
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Monthly Chart
+    new Chart(document.getElementById("monthlyChart"), {
+      type: "bar",
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [{
+          label: "Orders",
+          data: [300, 250, 400, 500, 350, 600, 700, 800, 750, 650, 500, 400],
+          backgroundColor: "#3498db"
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Seasonal Chart
+    new Chart(document.getElementById("seasonalChart"), {
+      type: "bar",
+      data: {
+        labels: ["Winter", "Spring", "Summer", "Autumn"],
+        datasets: [{
+          label: "Orders",
+          data: [500, 700, 900, 600],
+          backgroundColor: ["#9b59b6", "#27ae60", "#f39c12", "#e74c3c"]
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+  </script>
+</body>
+</html>

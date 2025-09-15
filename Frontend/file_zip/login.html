@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="login.css" />
+</head>
+<style>
+    
+    :root {
+    --primary-color: #2c3e50; /* Deep Blue */
+    --accent-color: #1abc9c; /* Teal */
+    --background-color: #ecf0f1; /* Light Gray */
+    --card-background: #ffffff; /* Soft White */
+    --text-color: #34495e; /* Dark Gray */
+    --secondary-text-color: #7f8c8d; /* Muted Gray */
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: var(--card-background);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 1rem 2rem;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.navbar-title {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    background-color: transparent;
+    color: var(--secondary-text-color);
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0.75rem 1.25rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: 500;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #e4e6e7;
+    color: var(--primary-color);
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3rem;
+    max-width: 1200px;
+    padding: 2rem;
+    text-align: left;
+}
+
+.hero-text {
+    flex: 1;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: var(--secondary-text-color);
+}
+
+.tagline {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.order-button {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 1.25rem 3rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.order-button:hover {
+    background-color: #16a085;
+    transform: translateY(-2px);
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.store-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.08));
+}
+
+.font-serif-display {
+    font-family: 'Playfair Display', serif;
+}
+
+.center-content {
+    justify-content: center;
+}
+
+.login-container {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    margin: 1rem;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    font-family: 'Playfair Display', serif;
+}
+
+.toggle-switch {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    background-color: var(--background-color);
+    border-radius: 50px;
+    padding: 5px;
+}
+
+.toggle-btn {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.toggle-btn.active {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.login-form.hidden {
+    display: none;
+}
+
+.input-label {
+    align-self: flex-start;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: -10px;
+}
+
+.login-form input {
+    padding: 12px;
+    border: 1px solid #ccc;  ;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #f8f9fa;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.login-form input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.login-button {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin-top: 1rem;
+}
+
+/* --- Header and Navigation --- */
+.header {
+  background-color: #ffffff; /* White header background */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1.5rem; /* Updated to match signup page padding */
+}
+
+.navbar {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0; /* Updated to remove inner padding */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-title {
+  font-size: 1.875rem; /* Updated to match signup page title size */
+  color: #2c3e50; /* Deep blue title */
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Updated to match signup page spacing */
+}
+
+.nav-link {
+  padding: 0.5rem 1rem; /* Updated to match signup page button size */
+  color: #2c3e50; /* Deep blue text */
+  background-color: transparent;
+  border: 2px solid #2c3e50; /* Deep blue border */
+  border-radius: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background-color: #1abc9c; /* Teal for active/hover */
+  color: white;
+  border-color: #1abc9c;
+}
+</style>
+
+<body>
+    <div class="page-container">
+        <header class="header">
+            <nav class="navbar">
+                <h1 class="navbar-title font-serif-display">Student Canteen</h1>
+                <div class="nav-links">
+                    <button class="nav-link home" style="border: none;">Home</button>
+                    <button class="nav-link login active" style="border: none;">Login</button>
+                    <button class="nav-link signup" style="border: none;">Signup</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="login-container">
+                <h2 class="login-title">Log In</h2>
+                <div class="toggle-switch">
+                    <button class="toggle-btn active" data-role="student">Student</button>
+                    <button class="toggle-btn" data-role="staff">Staff</button>
+                </div>
+
+                <form class="login-form" id="student-form">
+                    <label for="student-id" class="input-label">Student ID:</label>
+                    <input type="text" id="student-id" name="studentId" placeholder="Enter your student ID" required>
+                    <label for="student-password" class="input-label">Password:</label>
+                    <input type="password" id="student-password" name="studentPassword" placeholder="**********" required>
+                    <button type="submit" class="login-button">Login</button>
+                </form>
+
+                <form class="login-form hidden" id="staff-form">
+                    <label for="staff-id" class="input-label">Staff ID:</label>
+                    <input type="text" id="staff-id" name="staffId" placeholder="Enter your staff ID" required>
+                    <label for="staff-password" class="input-label">Password:</label>
+                    <input type="password" id="staff-password" name="staffPassword" placeholder="**********" required>
+                    <button type="submit" class="login-button">Login</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
