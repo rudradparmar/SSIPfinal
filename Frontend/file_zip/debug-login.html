@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    form { margin-bottom: 20px; }
+    input { padding: 8px; margin-bottom: 10px; width: 300px; }
+    button { padding: 10px 15px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    #status { margin-top: 20px; padding: 10px; border: 1px solid #ddd; background: #f8f8f8; }
+    #output { margin-top: 10px; padding: 10px; border: 1px solid #ddd; background: #f8f8f8; overflow-wrap: break-word; }
+    pre { margin: 0; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Debug Login</h1>
+  
+  <form id="loginForm">
+    <div>
+      <label for="userID">User ID:</label><br>
+      <input type="text" id="userID" name="userID" required>
+    </div>
+    <div>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+      <label for="role">Role:</label><br>
+      <select id="role" name="role">
+        <option value="user">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <button type="submit">Login</button>
+  </form>
+
+  <button id="clearStorage">Clear Local Storage</button>
+  <button id="checkStorage">Check Local Storage</button>
+  <button id="testStaffAuth">Test Staff Dashboard Auth</button>
+  
+  <div id="status">Status: Ready</div>
+  <div id="output"><pre>Output will appear here</pre></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output').querySelector('pre');
+    
+    // Login form submission
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const userID = document.getElementById('userID').value;
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+      
+      statusEl.innerHTML = 'Status: Logging in...';
+      outputEl.innerHTML = '';
+      
+      try {
+        log('Login attempt:', { userID, role });
+        
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userID, password, role })
+        });
+        
+        log('Response status:', response.status);
+        
+        // Get response as text first to check if it's valid JSON
+        const responseText = await response.text();
+        let data;
+        
+        try {
+          data = JSON.parse(responseText);
+          log('Response data:', data);
+        } catch (e) {
+          log('Error parsing JSON response:', e);
+          log('Raw response:', responseText);
+          throw new Error('Invalid JSON response from server');
+        }
+        
+        if (!response.ok) {
+          log('Login failed with status:', response.status);
+          throw new Error(data.message || 'Login failed');
+        }
+        
+        if (data.message && data.message.includes('Invalid')) {
+          log('Invalid credentials detected in response');
+          throw new Error('Invalid UserID or password');
+        }
+        
+        if (!data.token) {
+          log('No token in response data');
+          throw new Error('Server error: No authentication token received');
+        }
+        
+        // Clear existing storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userID');
+        
+        // Store new values
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('userID', data.user.userID);
+        
+        // Verify storage
+        log('Token stored:', localStorage.getItem('token').substring(0, 20) + '...');
+        log('UserID stored:', localStorage.getItem('userID'));
+        log('UserRole stored:', localStorage.getItem('userRole'));
+        
+        // Set sessionStorage flag
+        sessionStorage.setItem('justLoggedIn', 'true');
+        
+        statusEl.innerHTML = 'Status: Login successful';
+        
+        // Add dashboard links
+        const dashboardLinks = document.createElement('div');
+        dashboardLinks.innerHTML = `
+          <div style="margin-top: 15px;">
+            <a href="staff_dashboard.html" target="_blank">Open Staff Dashboard</a> | 
+            <a href="student_dashboard.html" target="_blank">Open Student Dashboard</a>
+          </div>
+        `;
+        statusEl.appendChild(dashboardLinks);
+        
+      } catch (error) {
+        log('Login error:', error.message);
+        statusEl.innerHTML = 'Status: Error - ' + error.message;
+      }
+    });
+    
+    // Clear local storage
+    document.getElementById('clearStorage').addEventListener('click', function() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userID');
+      sessionStorage.removeItem('justLoggedIn');
+      log('Local storage cleared');
+      statusEl.innerHTML = 'Status: Storage cleared';
+    });
+    
+    // Check local storage
+    document.getElementById('checkStorage').addEventListener('click', function() {
+      const token = localStorage.getItem('token');
+      const userRole = localStorage.getItem('userRole');
+      const userID = localStorage.getItem('userID');
+      const justLoggedIn = sessionStorage.getItem('justLoggedIn');
+      
+      log('Current storage state:');
+      log('token:', token ? token.substring(0, 20) + '...' : 'Not set');
+      log('userRole:', userRole || 'Not set');
+      log('userID:', userID || 'Not set');
+      log('justLoggedIn:', justLoggedIn || 'Not set');
+      
+      statusEl.innerHTML = 'Status: Storage checked';
+    });
+    
+    // Test staff dashboard authentication
+    document.getElementById('testStaffAuth').addEventListener('click', function() {
+      log('Testing staff-auth.js authentication logic...');
+      
+      // Mock the DOM content loaded event
+      const userID = localStorage.getItem('userID');
+      const token = localStorage.getItem('token');
+      const userRole = localStorage.getItem('userRole');
+      
+      log('Staff Dashboard loading - checking auth');
+      log('UserID:', userID || 'Not found');
+      log('Token:', token ? 'Found' : 'Not found');
+      log('User Role:', userRole || 'Not found');
+      
+      // If user is not authenticated, redirect to login
+      if (!userID || !token) {
+        log('Not authenticated, would redirect to login');
+        statusEl.innerHTML = 'Status: Auth check failed - missing credentials';
+        return;
+      }
+      
+      // If user is not an admin, redirect to student dashboard
+      if (userRole !== 'admin') {
+        log('Not admin, would redirect to student dashboard');
+        statusEl.innerHTML = 'Status: Auth check failed - not admin role';
+        return;
+      }
+      
+      log('Staff Dashboard would load for admin:', userID);
+      statusEl.innerHTML = 'Status: Auth check passed for admin';
+    });
+    
+    // Utility to log to the output div
+    function log(...args) {
+      const formatted = args.map(arg => {
+        if (typeof arg === 'object' && arg !== null) {
+          return JSON.stringify(arg, null, 2);
+        }
+        return String(arg);
+      }).join(' ');
+      
+      outputEl.innerHTML += formatted + '\n';
+      console.log(...args);
+    }
+  </script>
+</body>
+</html>

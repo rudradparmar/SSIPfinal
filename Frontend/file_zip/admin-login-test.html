@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    form { margin: 20px 0; }
+    input, button { margin: 5px 0; padding: 8px; }
+    button { cursor: pointer; background-color: #4CAF50; color: white; border: none; }
+    .box { padding: 15px; margin: 10px 0; border: 1px solid #ddd; background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Login Test</h1>
+    
+    <div class="box">
+      <h2>Authentication Status</h2>
+      <div id="auth-status">Checking...</div>
+    </div>
+    
+    <form id="admin-login-form">
+      <h2>Admin Login</h2>
+      <div>
+        <label for="admin-id">Admin ID:</label><br>
+        <input type="text" id="admin-id" name="admin-id" required>
+      </div>
+      <div>
+        <label for="admin-password">Password:</label><br>
+        <input type="password" id="admin-password" name="admin-password" required>
+      </div>
+      <button type="submit">Login as Admin</button>
+    </form>
+    
+    <div class="box">
+      <h2>Actions</h2>
+      <button id="clear-storage">Clear Storage</button>
+      <button id="check-storage">Check Storage</button>
+      <button id="go-to-staff">Go to Staff Dashboard</button>
+      <button id="go-to-student">Go to Student Dashboard</button>
+    </div>
+    
+    <div class="box">
+      <h2>Console Output</h2>
+      <pre id="console-output" style="max-height: 200px; overflow-y: auto;"></pre>
+    </div>
+  </div>
+  
+  <script>
+    // Helper function to log to both the console and our output element
+    function log(...args) {
+      console.log(...args);
+      const output = document.getElementById('console-output');
+      const text = args.map(arg => {
+        if (typeof arg === 'object' && arg !== null) {
+          return JSON.stringify(arg, null, 2);
+        }
+        return String(arg);
+      }).join(' ');
+      output.textContent += text + '\n';
+    }
+    
+    // Update the authentication status display
+    function updateAuthStatus() {
+      const userID = localStorage.getItem('userID');
+      const token = localStorage.getItem('token');
+      const userRole = localStorage.getItem('userRole');
+      const statusEl = document.getElementById('auth-status');
+      
+      if (userID && token) {
+        statusEl.innerHTML = `
+          <p style="color: green;">Authenticated</p>
+          <p>User ID: ${userID}</p>
+          <p>Role: ${userRole || 'Not set'}</p>
+          <p>Token: ${token ? token.substring(0, 20) + '...' : 'Not set'}</p>
+        `;
+      } else {
+        statusEl.innerHTML = `
+          <p style="color: red;">Not Authenticated</p>
+          <p>User ID: ${userID || 'Not set'}</p>
+          <p>Role: ${userRole || 'Not set'}</p>
+          <p>Token: ${token ? token.substring(0, 20) + '...' : 'Not set'}</p>
+        `;
+      }
+    }
+    
+    // Handle form submission
+    document.getElementById('admin-login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const userID = document.getElementById('admin-id').value;
+      const password = document.getElementById('admin-password').value;
+      const role = 'admin';
+      
+      log('Logging in as admin:', userID);
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userID, password, role })
+        });
+        
+        log('Response status:', response.status);
+        
+        const data = await response.json();
+        log('Response data:', data);
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed');
+        }
+        
+        // Store the token
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('userID', data.user.userID);
+        
+        log('Login successful!');
+        log('Token stored:', data.token.substring(0, 20) + '...');
+        log('User role:', data.user.role);
+        
+        updateAuthStatus();
+      } catch (error) {
+        log('Error:', error.message);
+      }
+    });
+    
+    // Action buttons
+    document.getElementById('clear-storage').addEventListener('click', function() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userID');
+      log('Storage cleared');
+      updateAuthStatus();
+    });
+    
+    document.getElementById('check-storage').addEventListener('click', function() {
+      const userID = localStorage.getItem('userID');
+      const token = localStorage.getItem('token');
+      const userRole = localStorage.getItem('userRole');
+      
+      log('Current storage:');
+      log('User ID:', userID || 'Not set');
+      log('Role:', userRole || 'Not set');
+      log('Token:', token ? token.substring(0, 20) + '...' : 'Not set');
+      
+      updateAuthStatus();
+    });
+    
+    document.getElementById('go-to-staff').addEventListener('click', function() {
+      window.location.href = 'staff_dashboard.html';
+    });
+    
+    document.getElementById('go-to-student').addEventListener('click', function() {
+      window.location.href = 'student_dashboard.html';
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateAuthStatus();
+      log('Page loaded');
+    });
+  </script>
+</body>
+</html>

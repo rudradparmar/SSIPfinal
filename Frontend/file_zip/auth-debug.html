@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+        }
+        .item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authentication Debug Tool</h1>
+        
+        <div id="auth-info">
+            <h2>Current Auth State</h2>
+            <div id="auth-details"></div>
+        </div>
+        
+        <div class="buttons">
+            <button id="refresh-btn">Refresh Info</button>
+            <button id="clear-btn">Clear All Auth Data</button>
+            <button id="test-login-btn">Go to Test Login</button>
+            <button id="login-btn">Go to Login</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to display current auth state
+        function displayAuthInfo() {
+            const authDetails = document.getElementById('auth-details');
+            authDetails.innerHTML = '';
+            
+            const token = localStorage.getItem('token');
+            const userID = localStorage.getItem('userID');
+            const userRole = localStorage.getItem('userRole');
+            
+            const tokenItem = document.createElement('div');
+            tokenItem.className = 'item';
+            tokenItem.innerHTML = `<strong>Token:</strong> ${token ? token.substring(0, 30) + '...' : 'Not found'}`;
+            
+            const userIDItem = document.createElement('div');
+            userIDItem.className = 'item';
+            userIDItem.innerHTML = `<strong>User ID:</strong> ${userID || 'Not found'}`;
+            
+            const roleItem = document.createElement('div');
+            roleItem.className = 'item';
+            roleItem.innerHTML = `<strong>User Role:</strong> ${userRole || 'Not found'}`;
+            
+            authDetails.appendChild(tokenItem);
+            authDetails.appendChild(userIDItem);
+            authDetails.appendChild(roleItem);
+        }
+        
+        // Initial display
+        displayAuthInfo();
+        
+        // Event listeners
+        document.getElementById('refresh-btn').addEventListener('click', displayAuthInfo);
+        
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('userRole');
+            sessionStorage.removeItem('justLoggedIn');
+            displayAuthInfo();
+            alert('All authentication data cleared');
+        });
+        
+        document.getElementById('test-login-btn').addEventListener('click', function() {
+            window.location.href = 'login-test.html';
+        });
+        
+        document.getElementById('login-btn').addEventListener('click', function() {
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

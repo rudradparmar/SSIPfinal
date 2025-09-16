@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test</title>
+</head>
+<body>
+    <h1>Login Test</h1>
+    
+    <form id="login-form">
+        <div>
+            <label for="userID">User ID:</label>
+            <input type="text" id="userID" name="userID" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="results" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Attempting login...';
+            
+            const userID = document.getElementById('userID').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            try {
+                console.log('Login attempt:', { userID, password, role });
+                
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userID, password, role })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <h3 style="color: green;">Login successful!</h3>
+                        <p>User: ${data.user.userID}</p>
+                        <p>Role: ${data.user.role}</p>
+                        <p>Token available: ${data.token ? 'Yes' : 'No'}</p>
+                        <p>Token (first 20 chars): ${data.token ? data.token.substring(0, 20) + '...' : 'N/A'}</p>
+                    `;
+                    
+                    // Store in localStorage (for testing)
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userID', data.user.userID);
+                    
+                    console.log('Data stored in localStorage');
+                    console.log('Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+                } else {
+                    resultsDiv.innerHTML = `
+                        <h3 style="color: red;">Login failed!</h3>
+                        <p>Error: ${data.message || 'Unknown error'}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                resultsDiv.innerHTML = `
+                    <h3 style="color: red;">Error!</h3>
+                    <p>${error.message || 'Unknown error occurred'}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -337,5 +337,97 @@ body {
         </main>
     </div>
     <script src="index.js"></script>
+    <script src="auth-debug.js"></script>
+    <script>
+document.getElementById("student-form").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  await handleLogin(
+    document.getElementById("student-id").value,
+    document.getElementById("student-password").value,
+    'user'
+  );
+});
+
+document.getElementById("staff-form").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  await handleLogin(
+    document.getElementById("staff-id").value,
+    document.getElementById("staff-password").value,
+    'admin'
+  );
+});
+
+async function handleLogin(userID, password, role) {
+  try {
+    console.log("Login attempt for:", userID, "with role:", role);
+    
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userID, password, role })
+    });
+
+    console.log("Login response status:", response.status);
+    const data = await response.json();
+    console.log("Login response data:", data);
+
+    // Check if the response is not ok
+    if (!response.ok) {
+      console.error("Login failed with status:", response.status);
+      throw new Error(data.message || 'Login failed');
+    }
+    
+    // If password is incorrect (handled by server but adding additional check)
+    if (data.message && data.message.includes('Invalid')) {
+      console.error("Invalid credentials detected in response");
+      throw new Error('Invalid UserID or password');
+    }
+
+    // Check if token is present in response
+    if (!data.token) {
+      console.error("No token in response data");
+      throw new Error('Server error: No authentication token received');
+    }
+
+    // Store the token only if login was successful
+    console.log("Login successful, token:", data.token.substring(0, 20) + "...");
+    
+    // Clear any existing values first
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userID');
+    
+    // Then set new values
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('userRole', data.user.role);
+    localStorage.setItem('userID', data.user.userID);
+    
+    // Debug - verify storage worked
+    console.log("Token stored:", localStorage.getItem('token').substring(0, 20) + "...");
+    console.log("UserID stored:", localStorage.getItem('userID'));
+    console.log("UserRole stored:", localStorage.getItem('userRole'));
+
+    // Redirect based on role - with slight delay to ensure storage completes
+    // Set a flag in sessionStorage to indicate we just logged in
+    sessionStorage.setItem('justLoggedIn', 'true');
+    
+    setTimeout(() => {
+      if (data.user.role === 'admin') {
+        console.log("Redirecting to staff dashboard");
+        window.location.href = 'staff_dashboard.html';
+      } else {
+        console.log("Redirecting to student dashboard");
+        window.location.href = 'student_dashboard.html';
+      }
+    }, 100);
+
+  } catch (error) {
+    console.error("Login error:", error);
+    alert(error.message || "Error logging in. Please try again.");
+  }
+}
+</script>
 </body>
 </html>

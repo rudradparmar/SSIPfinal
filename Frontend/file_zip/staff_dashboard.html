@@ -167,7 +167,18 @@
         transition: border-color 0.2s, box-shadow 0.2s;
       }
 
-      .form-group input:focus {
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border: 1px solid #e9eced;
+        border-radius: 8px;
+        background-color: #fafbfb;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
         outline: none;
         border-color: var(--primary-accent);
         box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
@@ -195,6 +206,8 @@
         transform: translateY(0);
       }
     </style>
+    <script src="staff-auth.js"></script>
+    <script src="auth-debug.js"></script>
   </head>
   <body>
     <!-- Navigation Bar -->
@@ -204,6 +217,7 @@
         <button class="accent" onclick="window.location.href='prediction.html'">Prediction Graph</button>
         <button class="accent" onclick="window.location.href='confirm.html'">Order Confirmed</button>
         <button class="accent" onclick="window.location.href='feedbackreview.html'">Feedback View</button>
+        <button id="logout-btn">Logout</button>
       </div>
     </nav>
 
@@ -231,6 +245,16 @@
             <input type="url" id="image-url" name="image-url" />
           </div>
           <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+              <option value="Drinks">Drinks</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Meals">Meals</option>
+              <option value="Thalis">Thalis</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label for="prep-time">Prep Time (mins):</label>
             <input type="number" id="prep-time" name="prep-time" required />
           </div>
@@ -253,9 +277,21 @@
 
     <!-- JavaScript -->
     <script>
+      // Add event listener for logout button
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        // Clear authentication data
+        localStorage.removeItem('userID');
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        
+        // Redirect to login page
+        window.location.href = 'login.html';
+      });
+      
       const form = document.getElementById("add-item-form");
+      const token = localStorage.getItem('token');
 
-      form.addEventListener("submit", function (e) {
+      form.addEventListener("submit", async function (e) {
         e.preventDefault(); // stop page reload
 
         const itemName = document.getElementById("item-name").value;
@@ -263,18 +299,37 @@
         const imageUrl = document.getElementById("image-url").value;
         const prepTime = document.getElementById("prep-time").value;
         const rating = document.getElementById("rating").value;
+        const category = document.getElementById("category").value;
 
-        console.log("New Item Added:", {
-          itemName,
-          price,
-          imageUrl,
-          prepTime,
-          rating,
-        });
-
-        alert(`Item "${itemName}" added successfully!`);
-
-        form.reset();
+        try {
+          const response = await fetch('http://localhost:5000/api/menu', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              name: itemName,
+              price: Number(price),
+              imageUrl: imageUrl || 'default-image.jpg',
+              prepTime: Number(prepTime),
+              rating: Number(rating),
+              category: category
+            })
+            })
+          });
+          
+          if (response.ok) {
+            alert(`Item "${itemName}" added successfully!`);
+            form.reset();
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to add item');
+          }
+        } catch (error) {
+          console.error('Error adding item:', error);
+          alert('Error: ' + error.message);
+        }
       });
     </script>
   </body>

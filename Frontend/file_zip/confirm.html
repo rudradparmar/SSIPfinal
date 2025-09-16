@@ -8,6 +8,8 @@
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 
+  <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+
   <style>
     /* --- Theme Colors --- */
     :root {
@@ -196,34 +198,103 @@
   </div>
 
   <script>
-    const pendingOrders = document.getElementById("pending-orders");
-    const confirmedList = document.getElementById("confirmed-list");
+    const socket = io('http://localhost:5000');
+    const pendingOrdersDiv = document.getElementById('pending-orders');
+    const confirmedListDiv = document.getElementById('confirmed-list');
 
-    // Event delegation
-    pendingOrders.addEventListener("click", function(e) {
-      if (e.target.classList.contains("confirm-btn")) {
-        const orderCard = e.target.closest(".order-card");
-        const orderInfo = orderCard.querySelector(".order-info").innerText;
-
-        // Add to today's orders
-        if (confirmedList.querySelector("p")) {
-          confirmedList.innerHTML = ""; // remove "no orders" msg
-        }
-
-        const newOrder = document.createElement("div");
-        newOrder.classList.add("order-card");
-        newOrder.innerHTML = `<div class="order-info">${orderInfo}</div>`;
-        confirmedList.appendChild(newOrder);
-
-        // Remove from pending
-        orderCard.remove();
+    // Load pending orders
+    async function loadPendingOrders() {
+      try {
+        const response = await fetch('http://localhost:5000/api/orders/pending', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch orders');
+        
+        const orders = await response.json();
+        
+        pendingOrdersDiv.innerHTML = orders.length ? orders.map(order => `
+          <div class="order-card" data-order-id="${order._id}" data-user-id="${order.userID}">
+            <div class="order-info">
+              <p><strong>Order ID:</strong> ${order._id}</p>
+              <p><strong>Items:</strong></p>
+              <ul>
+                ${order.items.map(item => `
+                  <li>${item.name} x${item.quantity} - ₹${item.price * item.quantity}</li>
+                `).join('')}
+              </ul>
+              <p><strong>Total:</strong> ₹${order.totalAmount}</p>
+              <p><strong>Pickup Time:</strong> ${order.pickupTime}</p>
+            </div>
+            <div class="order-actions">
+              <button class="confirm-btn" onclick="confirmOrder('${order._id}', '${order.userID}')">Confirm</button>
+              <button class="cancel-btn" onclick="cancelOrder('${order._id}', '${order.userID}')">Cancel</button>
+            </div>
+          </div>
+        `).join('') : '<p>No pending orders</p>';
+      } catch (error) {
+        console.error('Error:', error);
+        pendingOrdersDiv.innerHTML = '<p>Error loading orders</p>';
       }
+    }
 
-      if (e.target.classList.contains("cancel-btn")) {
-        const orderCard = e.target.closest(".order-card");
-        orderCard.remove();
-      }
+    // Handle new orders
+    socket.on('newOrder', (order) => {
+      const orderElement = document.createElement('div');
+      orderElement.className = 'order-card';
+      orderElement.setAttribute('data-order-id', order._id);
+      orderElement.setAttribute('data-user-id', order.userID);
+      orderElement.innerHTML = `
+        <div class="order-info">
+          <p><strong>Items:</strong></p>
+          <ul>
+            ${order.items.map(item => `
+              <li>${item.name} x${item.quantity} - ₹${item.price * item.quantity}</li>
+            `).join('')}
+          </ul>
+          <p><strong>Total:</strong> ₹${order.totalAmount}</p>
+          <p><strong>Pickup Time:</strong> ${order.pickupTime}</p>
+        </div>
+        <div class="order-actions">
+          <button class="confirm-btn" onclick="confirmOrder('${order._id}', '${order.userID}')">Confirm</button>
+          <button class="cancel-btn" onclick="cancelOrder('${order._id}', '${order.userID}')">Cancel</button>
+        </div>
+      `;
+      pendingOrdersDiv.insertBefore(orderElement, pendingOrdersDiv.firstChild);
     });
+
+    // Confirm order function
+    async function confirmOrder(orderId, userId) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/orders/${orderId}/confirm`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to confirm order');
+
+        // Move order to confirmed list
+        const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+        orderCard.remove();
+        
+        // Add to confirmed list
+        const confirmedOrder = orderCard.cloneNode(true);
+        confirmedOrder.querySelector('.order-actions').remove();
+        confirmedListDiv.appendChild(confirmedOrder);
+
+        // Emit confirmation
+        socket.emit('orderConfirmed', { orderId, userId });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    // Load orders when page loads
+    document.addEventListener('DOMContentLoaded', loadPendingOrders);
   </script>
 </body>
 </html>

@@ -285,6 +285,9 @@
          transform: translateX(0);
        }
      </style>
+     <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+     <script src="student-auth.js"></script>
+     <script src="auth-debug.js"></script>
    </head>
    <body>
      <div class="page-container">
@@ -293,7 +296,7 @@
            <h1 class="navbar-title font-serif-display">Student Canteen</h1>
            <div class="nav-links">
              <button id="view-cart-btn" class="nav-link">View Cart</button>
- 
+             <button id="logout-btn" class="nav-link">Logout</button>
            </div>
          </nav>
        </header>
@@ -510,66 +513,121 @@
      <div id="notification-container"></div>
  
      <script>
-       document.addEventListener("DOMContentLoaded", () => {
-         const mainContent = document.querySelector(".main-content");
-         const viewCartButton = document.getElementById("view-cart-btn");
- 
-         // Retrieve cart from localStorage or start with an empty array
-         let cart = JSON.parse(localStorage.getItem("canteenCart")) || [];
- 
-         // --- Cart Logic using Event Delegation on main content area ---
-         mainContent.addEventListener("click", (e) => {
-           if (e.target.classList.contains("add-to-cart-btn")) {
-             const itemElement = e.target.closest(".item-card");
-             const itemName = itemElement.dataset.name;
-             const itemPrice = parseInt(itemElement.dataset.price);
- 
-             const existingItem = cart.find((item) => item.name === itemName);
- 
-             if (existingItem) {
-               existingItem.quantity++;
-             } else {
-               cart.push({ name: itemName, price: itemPrice, quantity: 1 });
-             }
- 
-             // Save the updated cart to localStorage
-             localStorage.setItem("canteenCart", JSON.stringify(cart));
-             
-             // Show a success notification
-             showNotification(`✅ ${itemName} added to cart!`);
+       // Event listener for logout button
+       document.getElementById('logout-btn').addEventListener('click', function() {
+         // Clear authentication data
+         localStorage.removeItem('userID');
+         localStorage.removeItem('token');
+         localStorage.removeItem('userRole');
+         localStorage.removeItem('cart');
+         localStorage.removeItem('canteenCart');
+         
+         // Redirect to login page
+         window.location.href = 'login.html';
+       });
+       
+       const mainContent = document.querySelector(".main-content");
+       const viewCartButton = document.getElementById("view-cart-btn");
+
+       // Retrieve cart from localStorage or start with an empty array
+       let cart = JSON.parse(localStorage.getItem("canteenCart")) || [];
+
+       // --- Cart Logic using Event Delegation on main content area ---
+       mainContent.addEventListener("click", (e) => {
+         if (e.target.classList.contains("add-to-cart-btn")) {
+           const itemElement = e.target.closest(".item-card");
+           const itemName = itemElement.dataset.name;
+           const itemPrice = parseInt(itemElement.dataset.price);
+
+           const existingItem = cart.find((item) => item.name === itemName);
+
+           if (existingItem) {
+             existingItem.quantity++;
+           } else {
+             cart.push({ name: itemName, price: itemPrice, quantity: 1 });
            }
-         });
- 
-         // --- View Cart Button redirects to payment page ---
-         viewCartButton.addEventListener("click", () => {
-           window.location.href = "payment.html"; // Redirects to the payment page
-         });
- 
-         /**
-          * Shows a custom notification message.
-          * @param {string} message - The message to display.
-          */
-         function showNotification(message) {
-           const container = document.getElementById("notification-container");
-           const notification = document.createElement("div");
-           notification.className = "notification";
-           notification.textContent = message;
-           container.appendChild(notification);
- 
-           setTimeout(() => {
-             notification.classList.add("show");
-           }, 10);
- 
-           setTimeout(() => {
-             notification.classList.remove("show");
-             notification.addEventListener(
-               "transitionend",
-               () => notification.remove(),
-               { once: true }
-             );
-           }, 3000);
+
+           // Save the updated cart to localStorage
+           localStorage.setItem("canteenCart", JSON.stringify(cart));
+           
+           // Show a success notification
+           showNotification(`✅ ${itemName} added to cart!`);
          }
        });
+
+       // --- View Cart Button redirects to payment page ---
+       viewCartButton.addEventListener("click", () => {
+         window.location.href = "payment.html"; // Redirects to the payment page
+       });
+
+       /**
+        * Shows a custom notification message.
+        * @param {string} message - The message to display.
+        */
+       function showNotification(message) {
+         const container = document.getElementById("notification-container");
+         const notification = document.createElement("div");
+         notification.className = "notification";
+         notification.textContent = message;
+         container.appendChild(notification);
+
+         setTimeout(() => {
+           notification.classList.add("show");
+         }, 10);
+
+         setTimeout(() => {
+           notification.classList.remove("show");
+           notification.addEventListener(
+             "transitionend",
+             () => notification.remove(),
+             { once: true }
+           );
+         }, 3000);
+       }
+
+       const socket = io('http://localhost:5000');
+       const userID = localStorage.getItem('userID');
+
+       // Join user's room
+       socket.emit('join', userID);
+
+       // Listen for order confirmations
+       socket.on('orderConfirmed', (data) => {
+         showNotification('🎉 Your order has been confirmed! Please collect at your chosen pickup time.');
+       });
+
+       async function loadMenu() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch('http://localhost:5000/api/menu', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch menu items');
+          }
+          
+          const menuItems = await response.json();
+          
+          // Group items by category
+          const categorizedItems = menuItems.reduce((acc, item) => {
+            if (!acc[item.category]) {
+              acc[item.category] = [];
+            }
+            acc[item.category].push(item);
+            return acc;
+          }, {});
+
+          // Update UI with menu items
+          displayMenu(categorizedItems);
+        } catch (error) {
+          console.error('Error loading menu:', error);
+          showNotification('Error loading menu. Please try again.');
+        }
+      }
      </script>
    </body>
  </html>

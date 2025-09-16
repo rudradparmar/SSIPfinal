@@ -10,6 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     <style>
       :root {
         --bg-color: #ecf0f1; /* Light gray background */
@@ -135,9 +136,21 @@
       }
       .summary-item-details {
         color: var(--text-light);
+        flex: 1;
+      }
+      .summary-item-actions {
+        display: flex;
+        align-items: center;
       }
       .summary-item-price {
         font-weight: 500;
+      }
+      .remove-item {
+        font-size: 1rem;
+        transition: transform 0.2s;
+      }
+      .remove-item:hover {
+        transform: scale(1.2);
       }
       .summary-total {
         padding-top: 1.5rem;
@@ -259,7 +272,7 @@
       <header class="header">
         <nav class="navbar">
           <h1 class="navbar-title font-serif-display">Student Canteen</h1>
-          <a href="./student.html" class="nav-link">Back to Menu</a>
+          <a href="./student_dashboard.html" class="nav-link">Back to Menu</a>
         </nav>
       </header>
 
@@ -367,13 +380,38 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // Get authentication info
+        const userID = localStorage.getItem('userID');
+         
+        // Simple check if userID exists
+        if (!userID) {
+          console.log("No userID found, redirecting to login");
+          window.location.href = 'login.html';
+          return;
+        }
+         
+        console.log("Payment page loaded for user:", userID);
+        
         const summaryList = document.getElementById("summary-items-list");
         const summaryTotal = document.getElementById("summary-total");
         const paymentForm = document.getElementById("payment-form");
         const paymentMethods = document.querySelectorAll(".payment-method");
+        const payBtn = document.getElementById("pay-btn");
 
         // Get the cart from localStorage
         const cart = JSON.parse(localStorage.getItem("canteenCart")) || [];
+
+        // Check and log token for debugging
+        const token = localStorage.getItem('token');
+        console.log("Token available:", token ? "Yes" : "No", token ? token.substring(0, 10) + "..." : "");
+        console.log("UserID:", localStorage.getItem('userID'));
+        console.log("UserRole:", localStorage.getItem('userRole'));
+
+        // Socket.io setup
+        const socket = io('http://localhost:5000');
+        
+        // Join user's room 
+        socket.emit('join', userID);
 
         function renderOrderSummary() {
           summaryList.innerHTML = "";
@@ -386,7 +424,7 @@
           } else {
             paymentForm.style.display = 'block'; // Show form if cart has items
             document.getElementById('pay-btn').style.display = 'block';
-            cart.forEach((item) => {
+            cart.forEach((item, index) => {
               const li = document.createElement("li");
               li.className = "summary-item";
               li.innerHTML = `
@@ -394,9 +432,12 @@
                       <strong>${item.name}</strong>
                       <span>(x${item.quantity})</span>
                   </div>
-                  <span class="summary-item-price">₹${(
-                      item.price * item.quantity
-                  ).toFixed(2)}</span>
+                  <div class="summary-item-actions">
+                      <span class="summary-item-price">₹${(
+                          item.price * item.quantity
+                      ).toFixed(2)}</span>
+                      <button type="button" class="remove-item" data-index="${index}" style="margin-left: 10px; background: none; border: none; color: #e74c3c; cursor: pointer;">✕</button>
+                  </div>
               `;
               summaryList.appendChild(li);
               total += item.price * item.quantity;
@@ -421,24 +462,132 @@
         });
 
         // Handle final payment
-        paymentForm.addEventListener("submit", (e) => {
+        paymentForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-          if (cart.length === 0) {
-            showNotification("Your cart is empty!");
+          
+          const pickupTime = document.getElementById('time').value;
+          
+          if (!pickupTime) {
+            showNotification('Please select a pickup time');
             return;
           }
-          const totalAmount = summaryTotal.textContent;
-          showNotification(
-            `Payment successful! Your order for ${totalAmount} is confirmed.`
-          );
-
-          // Clear the cart from localStorage after successful payment
-          localStorage.removeItem("canteenCart");
           
-          // You can redirect after a delay
-          setTimeout(() => {
-            window.location.href = "student_dashboard.html"; // Redirect back to menu
-          }, 3000);
+          const order = {
+            userID,
+            items: cart,
+            totalAmount: parseFloat(summaryTotal.textContent.replace('₹', '')),
+            pickupTime
+          };
+
+          try {
+            // Get token from localStorage
+            let token = localStorage.getItem('token');
+            
+            // Add debug information to console
+            console.log("Order submission attempt - Token:", token ? "Found" : "Not found");
+            
+            if (!token) {
+              console.log("No token found - retrying login flow");
+              showNotification('Session expired. Please log in again.');
+              setTimeout(() => {
+                window.location.href = 'login.html';
+              }, 2000);
+              return;
+            }
+
+            console.log("Making API request with auth token");
+            const response = await fetch('http://localhost:5000/api/orders/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(order)
+            });
+
+            console.log("Response status:", response.status);
+            
+            // Check if response is ok
+            if (!response.ok) {
+              // Try to parse response as JSON
+              let errorData;
+              const contentType = response.headers.get('content-type');
+              console.log("Response content type:", contentType);
+              
+              if (contentType && contentType.includes('application/json')) {
+                errorData = await response.json();
+                console.log("Error data:", errorData);
+                throw new Error(errorData.message || `Error: ${response.status}`);
+              } else {
+                // If not JSON, get text
+                const errorText = await response.text();
+                console.log("Error text:", errorText.substring(0, 100) + "...");
+                throw new Error(`Server error: ${response.status}`);
+              }
+            }
+
+            // Parse the successful response
+            const orderData = await response.json();
+
+            // Handle success
+            showNotification('Order placed successfully!');
+            
+            // Clear the cart in localStorage
+            localStorage.removeItem('canteenCart');
+            
+            // Redirect to feedback page after successful order
+            setTimeout(() => {
+              window.location.href = 'feedback.html';
+            }, 2000);
+          } catch (error) {
+            showNotification('Error placing order: ' + error.message);
+            console.error('Order error:', error);
+            
+            // If token is expired or invalid, redirect to login
+            if (error.message.includes('token') || error.message.includes('Authentication')) {
+              console.log("Authentication error - clearing token and redirecting");
+              localStorage.removeItem('token');
+              setTimeout(() => {
+                window.location.href = 'login.html';
+              }, 2000);
+            }
+          }
+        });
+
+        // Add event listener for removing items from cart
+        summaryList.addEventListener('click', (e) => {
+          if (e.target.classList.contains('remove-item')) {
+            const index = parseInt(e.target.dataset.index);
+            
+            // Remove the item from the cart
+            if (index >= 0 && index < cart.length) {
+              cart.splice(index, 1);
+              
+              // Update localStorage with the modified cart
+              localStorage.setItem('canteenCart', JSON.stringify(cart));
+              
+              // Re-render the order summary
+              renderOrderSummary();
+              
+              showNotification('Item removed from cart');
+            }
+          }
+        });
+
+        // Ensure the pay button triggers the form submission
+        payBtn.addEventListener("click", (e) => {
+          // Prevent default button behavior
+          e.preventDefault();
+          
+          // Make sure we're not bypassing the API call
+          console.log("Pay button clicked - submitting form");
+          
+          // Trigger the form submission which contains our validation and API call
+          const submitEvent = new Event('submit', {
+            bubbles: true,
+            cancelable: true
+          });
+          paymentForm.dispatchEvent(submitEvent);
         });
 
         function showNotification(message) {
@@ -459,11 +608,6 @@
           }, 3000);
         }
       });
-      const payBtn = document.getElementById("pay-btn");
-        payBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = "feedback.html"; // Redirect to feedback page after payment
-        });
     </script>
   </body>
 </html>

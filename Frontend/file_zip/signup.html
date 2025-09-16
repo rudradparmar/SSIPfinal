@@ -331,29 +331,43 @@
       });
 
       // --- Existing Form Submission and Alert Logic ---
-      document
-        .getElementById("signup-form")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const password = document.getElementById("password").value;
-          const confirmPassword =
-            document.getElementById("confirm-password").value;
+      document.getElementById("signup-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const userID = document.getElementById("user-id").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+        const role = document.getElementById("signup-form").dataset.mode === "student" ? "user" : "admin";
 
-          if (password !== confirmPassword) {
-            showCustomAlert("Passwords do not match. Please try again.");
-            return;
+        if (password !== confirmPassword) {
+          showCustomAlert("Passwords do not match. Please try again.");
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost:5000/api/auth/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userID, password, role })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || 'Signup failed');
           }
 
-          // On successful validation
           showCustomAlert("Account created successfully! You can now log in.");
-
-          // Optionally, redirect to login page after a delay
           setTimeout(() => {
-            // In a real app, you would redirect like this:
             window.location.href = "login.html";
-            console.log("Redirecting to login page...");
           }, 2000);
-        });
+
+        } catch (error) {
+          showCustomAlert(error.message || "Error creating account. Please try again.");
+        }
+      });
 
       function showCustomAlert(message) {
         const existingAlert = document.getElementById("custom-alert");
